@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TheBakery.Data;
 using TheBakery.Models;
+using TheBakery.Models.DTOs;
+using TheBakery.Models.DTOs.Customer;
+using TheBakery.Services;
 
 namespace TheBakery.Controllers
 {
@@ -14,33 +18,27 @@ namespace TheBakery.Controllers
     [ApiController]
     public class CustomersController : ControllerBase
     {
+        private readonly ICustomerService _customerService;
         private readonly TheBakeryContext _context;
 
-        public CustomersController(TheBakeryContext context)
+        public CustomersController(TheBakeryContext context, ICustomerService customerService)
         {
             _context = context;
+            _customerService = customerService;
         }
 
         // GET: api/Customers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Customer>>> GetCustomer()
+        public async Task<ActionResult<IEnumerable<GetCustomerDto>>> GetCustomer()
         {
-          if (_context.Customer == null)
-          {
-              return NotFound();
-          }
-            return await _context.Customer.ToListAsync();
+            return (await _customerService.GetAllAsync()).ToList();
         }
 
         // GET: api/Customers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Customer>> GetCustomer(Guid id)
+        public async Task<ActionResult<GetCustomerDto>> GetCustomer(Guid id)
         {
-          if (_context.Customer == null)
-          {
-              return NotFound();
-          }
-            var customer = await _context.Customer.FindAsync(id);
+            var customer = await _customerService.GetAsync(id);
 
             if (customer == null)
             {
@@ -50,75 +48,66 @@ namespace TheBakery.Controllers
             return customer;
         }
 
+        // GET: api/Customers/5/Address
+        [HttpGet("{id}/Address")]
+        public async Task<ActionResult<Address>> GetCustomerAddress(Guid id)
+        {
+            var address = await _customerService.GetAddressByCustomerId(id);
+
+            if (address == null)
+            {
+                return NotFound();
+            }
+
+            return address;
+        }
+
         // PUT: api/Customers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCustomer(Guid id, Customer customer)
+        public async Task<IActionResult> PutCustomer(Guid id, PutCustomerDto customer)
         {
             if (id != customer.CustomerId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(customer).State = EntityState.Modified;
+            var updatedSuccessfully = await _customerService.UpdateAsync(id, customer);
 
-            try
+            if (!updatedSuccessfully)
             {
-                await _context.SaveChangesAsync();
+                return NotFound();
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CustomerExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
             return NoContent();
         }
 
         // POST: api/Customers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
+        public async Task<ActionResult<Customer>> PostCustomer(PostCustomerDto customer)
         {
-          if (_context.Customer == null)
-          {
-              return Problem("Entity set 'TheBakeryContext.Customer'  is null.");
-          }
-            _context.Customer.Add(customer);
-            await _context.SaveChangesAsync();
+            var created = await _customerService.CreateAsync(customer);
 
-            return CreatedAtAction("GetCustomer", new { id = customer.CustomerId }, customer);
+            if (!created.Item1)
+            {
+                return Problem("There was a problem creating the Customer.");
+            }
+
+            return CreatedAtAction("GetCustomer", new { id = created.Item2?.CustomerId }, created.Item2);
         }
 
         // DELETE: api/Customers/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomer(Guid id)
         {
-            if (_context.Customer == null)
-            {
-                return NotFound();
-            }
-            var customer = await _context.Customer.FindAsync(id);
-            if (customer == null)
-            {
-                return NotFound();
-            }
+            var deleted = await _customerService.DeleteAsync(id);
 
-            _context.Customer.Remove(customer);
-            await _context.SaveChangesAsync();
+            if (deleted == false)
+            {
+                return NotFound();
+            }
 
             return NoContent();
-        }
-
-        private bool CustomerExists(Guid id)
-        {
-            return (_context.Customer?.Any(e => e.CustomerId == id)).GetValueOrDefault();
         }
     }
 }

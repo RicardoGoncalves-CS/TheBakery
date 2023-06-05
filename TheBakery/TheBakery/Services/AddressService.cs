@@ -7,12 +7,12 @@ using TheBakery.Models.DTOs;
 
 namespace TheBakery.Services
 {
-    public class AddressService : IBakeryService<Address, Address, PostAddressDto, Address>
+    public class AddressService : IAddressService
     {
-        private readonly IBakeryRepository<Address> _addressRepository;
+        private readonly IAddressRepository _addressRepository;
         private readonly IMapper _mapper;
 
-        public AddressService(IBakeryRepository<Address> addressRepository, IMapper mapper)
+        public AddressService(IAddressRepository addressRepository, IMapper mapper)
         {
             _addressRepository = addressRepository;
             _mapper = mapper;
@@ -78,6 +78,23 @@ namespace TheBakery.Services
             }
 
             var entity = await _addressRepository.FindAsync(id);
+
+            if (entity == null)
+            {
+                return null;
+            }
+
+            return entity;
+        }
+
+        public async Task<Address?> GetByProperties(string number, string street, string postCode, string city)
+        {
+            if (_addressRepository.IsNull)
+            {
+                return null;
+            }
+
+            var entity = await _addressRepository.FindAsync(number, street, postCode, city);
 
             if (entity == null)
             {

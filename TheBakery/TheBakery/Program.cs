@@ -5,6 +5,7 @@ using TheBakery.Data;
 using TheBakery.Data.Repositories;
 using TheBakery.Models;
 using TheBakery.Models.DTOs;
+using TheBakery.Models.DTOs.Customer;
 using TheBakery.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,8 +25,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped(typeof(IBakeryRepository<>), typeof(BakeryRepository<>));
-builder.Services.AddScoped<IBakeryService<Address, Address, PostAddressDto, Address>, AddressService>();
+// builder.Services.AddScoped(typeof(IBakeryRepository<>), typeof(BakeryRepository<>));
+
+builder.Services.AddScoped<IAddressRepository, AddressRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+
+builder.Services.AddScoped<IAddressService, AddressService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 var app = builder.Build();
 
