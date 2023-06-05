@@ -19,14 +19,32 @@ namespace TheBakery.Services
             _mapper = mapper;
         }
 
-        public async Task<(bool, Customer?)> CreateAsync(PostCustomerDto entity)
+        public async Task<(bool, Customer?)> CreateAsync(PostCustomerDto customerDto)
         {
             if (_customerRepository.IsNull)
             {
                 return (false, null);
             }
 
-            var customer = _mapper.Map<Customer>(entity);
+            var customer = _mapper.Map<Customer>(customerDto);
+
+            if (customer.Address != null)
+            {
+                var existingAddress = await _addressRepository
+                    .FindAsync(
+                        customerDto.Address.Number, 
+                        customerDto.Address.Street,
+                        customerDto.Address.PostCode,
+                        customerDto.Address.City);
+
+                customer.Address = existingAddress ?? new Address
+                {
+                    Number = customer.Address.Number,
+                    Street = customer.Address.Street,
+                    PostCode = customer.Address.PostCode,
+                    City = customer.Address.City
+                };
+            }
 
             _customerRepository.Add(customer);
             await _customerRepository.SaveAsync();

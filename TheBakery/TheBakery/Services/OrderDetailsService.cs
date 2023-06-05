@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using TheBakery.Data.Repositories;
 using TheBakery.Models;
-using TheBakery.Models.DTOs.Customer;
 using TheBakery.Models.DTOs.OrderDetailsDtos;
 
 namespace TheBakery.Services
