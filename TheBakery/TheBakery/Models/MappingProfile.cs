@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using TheBakery.Models.DTOs;
 using TheBakery.Models.DTOs.Customer;
+using TheBakery.Models.DTOs.Product;
 
 namespace TheBakery.Models
 {
@@ -15,6 +16,9 @@ namespace TheBakery.Models
             CreateMap<Customer, GetCustomerDto>();
             CreateMap<PostCustomerDto, Customer>();
             CreateMap<PutCustomerDto, Customer>();
+
+            // Product mapping
+            CreateMap<PostProductDto, Product>();
         }
     }
 }
