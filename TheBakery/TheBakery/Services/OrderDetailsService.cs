@@ -10,11 +10,13 @@ namespace TheBakery.Services
     public class OrderDetailsService : IOrderDetailsService
     {
         private readonly IOrderDetailsRepository _orderDetailsRepository;
+        private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
 
-        public OrderDetailsService(IOrderDetailsRepository orderDetailsRepository, IMapper mapper)
+        public OrderDetailsService(IOrderDetailsRepository orderDetailsRepository, IProductRepository productRepository, IMapper mapper)
         {
             _orderDetailsRepository = orderDetailsRepository;
+            _productRepository = productRepository;
             _mapper = mapper;
         }
 
@@ -85,6 +87,30 @@ namespace TheBakery.Services
             }
 
             return _mapper.Map<GetOrderDetailsDto>(orderDetails);
+        }
+
+        public async Task<Product?> GetProductByOrderDetailsId(Guid id)
+        {
+            if (_orderDetailsRepository.IsNull)
+            {
+                return null;
+            }
+
+            var orderDetails = await _orderDetailsRepository.FindAsync(id);
+
+            if (orderDetails == null)
+            {
+                return null;
+            }
+
+            var product = await _productRepository.FindAsync(orderDetails.ProductId);
+
+            if (product == null)
+            {
+                return null;
+            }
+
+            return product;
         }
 
         public async Task<bool> UpdateAsync(Guid id, PutOrderDetailsDto orderDetailsDto)

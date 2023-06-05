@@ -1,14 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using TheBakery.Data;
 using TheBakery.Data.Repositories;
 using TheBakery.Models;
-using TheBakery.Models.DTOs;
-using TheBakery.Models.DTOs.Customer;
 using TheBakery.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Services.AddDbContext<TheBakeryContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'TheBakeryContext' not found.")));
 
@@ -25,13 +23,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// builder.Services.AddScoped(typeof(IBakeryRepository<>), typeof(BakeryRepository<>));
-
+// Repositories Dependency Injection
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IOrderDetailsRepository, OrderDetailsRepository>();
 
+// Services Dependency Injection
 builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
@@ -39,6 +37,7 @@ builder.Services.AddScoped<IOrderDetailsService, OrderDetailsService>();
 
 var app = builder.Build();
 
+// Seed database
 using (var scope = app.Services.CreateScope())
 {
     SeedData.Initialise(scope.ServiceProvider);
