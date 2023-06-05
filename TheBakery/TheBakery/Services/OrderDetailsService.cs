@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using TheBakery.Data.Repositories;
 using TheBakery.Models;
 using TheBakery.Models.DTOs.Customer;
@@ -69,7 +70,20 @@ namespace TheBakery.Services
 
             var orderDetails = await _orderDetailsRepository.GetAllAsync();
 
-            return _mapper.Map<List<GetOrderDetailsDto>>(orderDetails);
+            var orderDetailsDto = _mapper.Map<List<GetOrderDetailsDto>>(orderDetails);
+
+            foreach(var details in orderDetailsDto)
+            {
+                var product = await _productRepository.FindAsync(details.ProductId);
+                if(product == null)
+                {
+                    return null;
+                }
+
+                details.Price = product.UnitPrice * details.Quantity;
+            }
+
+            return orderDetailsDto;
         }
 
         public async Task<GetOrderDetailsDto?> GetAsync(Guid id)
@@ -86,7 +100,11 @@ namespace TheBakery.Services
                 return null;
             }
 
-            return _mapper.Map<GetOrderDetailsDto>(orderDetails);
+            var orderDetailsDto = _mapper.Map<GetOrderDetailsDto>(orderDetails);
+
+            orderDetailsDto.Price = orderDetails.Product.UnitPrice * orderDetails.Quantity;
+
+            return orderDetailsDto;
         }
 
         public async Task<Product?> GetProductByOrderDetailsId(Guid id)
