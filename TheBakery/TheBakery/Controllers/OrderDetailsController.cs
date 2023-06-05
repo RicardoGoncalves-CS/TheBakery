@@ -44,6 +44,20 @@ namespace TheBakery.Controllers
             return orderDetails;
         }
 
+        // GET: api/Customers/5/Product
+        [HttpGet("{id}/Product")]
+        public async Task<ActionResult<Product>> GetCustomerAddress(Guid id)
+        {
+            var product = await _orderDetailsService.GetProductByOrderDetailsId(id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            return product;
+        }
+
         // PUT: api/OrderDetails/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
