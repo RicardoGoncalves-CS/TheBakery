@@ -10,9 +10,9 @@ namespace TheBakery.Controllers
     [ApiController]
     public class AddressesController : ControllerBase
     {
-        private readonly IBakeryService<Address, Address, PostAddressDto, Address> _addressService;
+        private readonly IAddressService _addressService;
 
-        public AddressesController(IBakeryService<Address, Address, PostAddressDto, Address> addressService)
+        public AddressesController(IAddressService addressService)
         {
             _addressService = addressService;
         }
