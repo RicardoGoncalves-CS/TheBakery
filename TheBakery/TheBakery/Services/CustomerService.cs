@@ -66,14 +66,19 @@ namespace TheBakery.Services
                 return null;
             }
 
-            var entity = await _customerRepository.FindIncludeAddressAsync(id);
+            var customer = await _customerRepository.FindIncludeAddressAsync(id);
 
-            if (entity == null)
+            if (customer == null)
             {
                 return null;
             }
 
-            var address = await _addressRepository.FindAsync(entity.Address.Number, entity.Address.Street, entity.Address.PostCode, entity.Address.City);
+            var address = await _addressRepository
+                .FindAsync(
+                    customer.Address.Number, 
+                    customer.Address.Street, 
+                    customer.Address.PostCode, 
+                    customer.Address.City);
 
             if(address == null)
             {

@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TheBakery.Data;
 using TheBakery.Models;
+using TheBakery.Models.DTOs.OrderDetailsDtos;
+using TheBakery.Services;
 
 namespace TheBakery.Controllers
 {
@@ -14,33 +16,25 @@ namespace TheBakery.Controllers
     [ApiController]
     public class OrderDetailsController : ControllerBase
     {
-        private readonly TheBakeryContext _context;
+        private readonly IOrderDetailsService _orderDetailsService;
 
-        public OrderDetailsController(TheBakeryContext context)
+        public OrderDetailsController(IOrderDetailsService orderDetailsService)
         {
-            _context = context;
+            _orderDetailsService = orderDetailsService;
         }
 
         // GET: api/OrderDetails
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<OrderDetails>>> GetOrderDetails()
+        public async Task<ActionResult<IEnumerable<GetOrderDetailsDto>>> GetOrderDetails()
         {
-          if (_context.OrderDetails == null)
-          {
-              return NotFound();
-          }
-            return await _context.OrderDetails.ToListAsync();
+            return (await _orderDetailsService.GetAllAsync()).ToList();
         }
 
         // GET: api/OrderDetails/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<OrderDetails>> GetOrderDetails(Guid id)
+        public async Task<ActionResult<GetOrderDetailsDto>> GetOrderDetails(Guid id)
         {
-          if (_context.OrderDetails == null)
-          {
-              return NotFound();
-          }
-            var orderDetails = await _context.OrderDetails.FindAsync(id);
+            var orderDetails = await _orderDetailsService.GetAsync(id);
 
             if (orderDetails == null)
             {
@@ -53,72 +47,49 @@ namespace TheBakery.Controllers
         // PUT: api/OrderDetails/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrderDetails(Guid id, OrderDetails orderDetails)
+        public async Task<IActionResult> PutOrderDetails(Guid id, PutOrderDetailsDto orderDetails)
         {
             if (id != orderDetails.OrderDetailsId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(orderDetails).State = EntityState.Modified;
+            var updatedSuccessfully = await _orderDetailsService.UpdateAsync(id, orderDetails);
 
-            try
+            if (!updatedSuccessfully)
             {
-                await _context.SaveChangesAsync();
+                return NotFound();
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!OrderDetailsExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
             return NoContent();
         }
 
         // POST: api/OrderDetails
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<OrderDetails>> PostOrderDetails(OrderDetails orderDetails)
+        public async Task<ActionResult<OrderDetails>> PostOrderDetails(PostOrderDetailsDto orderDetails)
         {
-          if (_context.OrderDetails == null)
-          {
-              return Problem("Entity set 'TheBakeryContext.OrderDetails'  is null.");
-          }
-            _context.OrderDetails.Add(orderDetails);
-            await _context.SaveChangesAsync();
+            var created = await _orderDetailsService.CreateAsync(orderDetails);
 
-            return CreatedAtAction("GetOrderDetails", new { id = orderDetails.OrderDetailsId }, orderDetails);
+            if (!created.Item1)
+            {
+                return Problem("There was a problem creating the Customer.");
+            }
+
+            return CreatedAtAction("GetOrderDetails", new { id = created.Item2?.OrderDetailsId }, created.Item2);
         }
 
         // DELETE: api/OrderDetails/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrderDetails(Guid id)
         {
-            if (_context.OrderDetails == null)
-            {
-                return NotFound();
-            }
-            var orderDetails = await _context.OrderDetails.FindAsync(id);
-            if (orderDetails == null)
-            {
-                return NotFound();
-            }
+            var deleted = await _orderDetailsService.DeleteAsync(id);
 
-            _context.OrderDetails.Remove(orderDetails);
-            await _context.SaveChangesAsync();
+            if (deleted == false)
+            {
+                return NotFound();
+            }
 
             return NoContent();
-        }
-
-        private bool OrderDetailsExists(Guid id)
-        {
-            return (_context.OrderDetails?.Any(e => e.OrderDetailsId == id)).GetValueOrDefault();
         }
     }
 }
