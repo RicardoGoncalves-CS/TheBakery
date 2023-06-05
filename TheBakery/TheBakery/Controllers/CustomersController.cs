@@ -19,11 +19,9 @@ namespace TheBakery.Controllers
     public class CustomersController : ControllerBase
     {
         private readonly ICustomerService _customerService;
-        private readonly TheBakeryContext _context;
 
-        public CustomersController(TheBakeryContext context, ICustomerService customerService)
+        public CustomersController(ICustomerService customerService)
         {
-            _context = context;
             _customerService = customerService;
         }
 

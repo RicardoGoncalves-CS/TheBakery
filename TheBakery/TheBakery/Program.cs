@@ -30,10 +30,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IOrderDetailsRepository, OrderDetailsRepository>();
 
 builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IOrderDetailsService, OrderDetailsService>();
 
 var app = builder.Build();
 
