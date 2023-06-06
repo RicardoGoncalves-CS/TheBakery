@@ -12,18 +12,31 @@ namespace TheBakery.Services
     {
         private readonly IOrderRepository _orderRepository;
         private readonly IProductRepository _productRepository;
+        private readonly ICustomerRepository _customerRepository;
         private readonly IMapper _mapper;
 
-        public OrderService(IOrderRepository orderRepository, IProductRepository productRepository, IMapper mapper)
+        public OrderService(
+            IOrderRepository orderRepository,
+            IProductRepository productRepository,
+            ICustomerRepository customerRepository,
+            IMapper mapper)
         {
             _orderRepository = orderRepository;
             _productRepository = productRepository;
+            _customerRepository = customerRepository;
             _mapper = mapper;
         }
 
         public async Task<(bool, Order?)> CreateAsync(PostOrderDto orderDto)
         {
             if (_orderRepository.IsNull)
+            {
+                return (false, null);
+            }
+
+            var customer = await _customerRepository.FindIncludeAddressAsync(orderDto.CustomerId);
+
+            if(customer == null || customer.AddressId == null)
             {
                 return (false, null);
             }
@@ -85,6 +98,7 @@ namespace TheBakery.Services
                         return null;
                     }
 
+                    orderDetails.Price = product.UnitPrice * orderDetails.Quantity;
                     total += product.UnitPrice * orderDetails.Quantity;
                 }
 
@@ -121,12 +135,32 @@ namespace TheBakery.Services
                     return null;
                 }
 
+                orderDetails.Price = product.UnitPrice * orderDetails.Quantity;
                 total += product.UnitPrice * orderDetails.Quantity;
             }
 
             orderDto.TotalPrice = total;
 
             return orderDto;
+        }
+
+        public async Task<GetCustomerDto> GetCustomerByOrderId(Guid id)
+        {
+            if (_orderRepository.IsNull)
+            {
+                return null;
+            }
+
+            var order = await _orderRepository.FindAsync(id);
+
+            if (order == null)
+            {
+                return null;
+            }
+
+            var customer = await _customerRepository.FindAsync(order.CustomerId);
+
+            return _mapper.Map<GetCustomerDto>(customer);
         }
 
         public async Task<bool> UpdateAsync(Guid id, PutOrderDto orderDto)

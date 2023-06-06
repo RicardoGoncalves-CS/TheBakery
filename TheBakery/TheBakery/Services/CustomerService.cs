@@ -30,12 +30,11 @@ namespace TheBakery.Services
 
             if (customer.Address != null)
             {
-                var existingAddress = await _addressRepository
-                    .FindAsync(
-                        customerDto.Address.Number, 
-                        customerDto.Address.Street,
-                        customerDto.Address.PostCode,
-                        customerDto.Address.City);
+                var existingAddress = await _addressRepository.FindAsync(
+                    customerDto.Address.Number, 
+                    customerDto.Address.Street,
+                    customerDto.Address.PostCode,
+                    customerDto.Address.City);
 
                 customer.Address = existingAddress ?? new Address
                 {
@@ -91,12 +90,11 @@ namespace TheBakery.Services
                 return null;
             }
 
-            var address = await _addressRepository
-                .FindAsync(
-                    customer.Address.Number, 
-                    customer.Address.Street, 
-                    customer.Address.PostCode, 
-                    customer.Address.City);
+            var address = await _addressRepository.FindAsync(
+                customer.Address.Number, 
+                customer.Address.Street, 
+                customer.Address.PostCode, 
+                customer.Address.City);
 
             if(address == null)
             {

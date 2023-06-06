@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TheBakery.Data;
 using TheBakery.Models;
+using TheBakery.Models.DTOs.Customer;
 using TheBakery.Models.DTOs.OrderDtos;
 using TheBakery.Services;
 
@@ -30,12 +31,6 @@ namespace TheBakery.Controllers
         public async Task<ActionResult<IEnumerable<GetOrderDto>>> GetOrder()
         {
             return (await _orderService.GetAllAsync()).ToList();
-            /*
-          if (_context.Order == null)
-          {
-              return NotFound();
-          }
-            return await _context.Order.ToListAsync();*/
         }
 
         // GET: api/Orders/5
@@ -50,19 +45,20 @@ namespace TheBakery.Controllers
             }
 
             return order;
-            /*
-          if (_context.Order == null)
-          {
-              return NotFound();
-          }
-            var order = await _context.Order.FindAsync(id);
+        }
 
-            if (order == null)
+        // GET: api/Orders/5/Customer
+        [HttpGet("{id}/Customer")]
+        public async Task<ActionResult<GetCustomerDto>> GetOrderCustomer(Guid id)
+        {
+            var customer = await _orderService.GetCustomerByOrderId(id);
+
+            if (customer == null)
             {
                 return NotFound();
             }
 
-            return order;*/
+            return customer;
         }
 
         // PUT: api/Orders/5
@@ -82,31 +78,6 @@ namespace TheBakery.Controllers
                 return NotFound();
             }
             return NoContent();
-            /*
-            if (id != order.OrderId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(order).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!OrderExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();*/
         }
 
         // POST: api/Orders
@@ -121,16 +92,7 @@ namespace TheBakery.Controllers
                 return Problem("There was a problem creating the Customer.");
             }
 
-            return CreatedAtAction("GetOrderDetails", new { id = created.Item2?.OrderId }, created.Item2);
-            /*
-          if (_context.Order == null)
-          {
-              return Problem("Entity set 'TheBakeryContext.Order'  is null.");
-          }
-            _context.Order.Add(order);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetOrder", new { id = order.OrderId }, order);*/
+            return CreatedAtAction("GetOrder", new { id = created.Item2?.OrderId }, created.Item2);
         }
 
         // DELETE: api/Orders/5
@@ -145,21 +107,6 @@ namespace TheBakery.Controllers
             }
 
             return NoContent();
-            /*
-            if (_context.Order == null)
-            {
-                return NotFound();
-            }
-            var order = await _context.Order.FindAsync(id);
-            if (order == null)
-            {
-                return NotFound();
-            }
-
-            _context.Order.Remove(order);
-            await _context.SaveChangesAsync();
-
-            return NoContent();*/
         }
 
         private bool OrderExists(Guid id)
