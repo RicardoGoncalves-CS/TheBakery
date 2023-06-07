@@ -18,14 +18,25 @@ namespace TheBakery.Services
             _mapper = mapper;
         }
 
-        public async Task<(bool, Address?)> CreateAsync(PostAddressDto entity)
+        public async Task<(bool, Address?)> CreateAsync(PostAddressDto addressDto)
         {
             if (_addressRepository.IsNull)
             {
                 return (false, null);
             }
 
-            var address = _mapper.Map<Address>(entity);
+            var addressExists = await _addressRepository.FindAsync(
+                addressDto.Number,
+                addressDto.Street,
+                addressDto.PostCode,
+                addressDto.City);
+
+            if (addressExists != null)
+            {
+                return (false, null);
+            }
+
+            var address = _mapper.Map<Address>(addressDto);
 
             _addressRepository.Add(address);
             await _addressRepository.SaveAsync();
@@ -40,14 +51,14 @@ namespace TheBakery.Services
                 return false;
             }
 
-            var entity = await _addressRepository.FindAsync(id);
+            var address = await _addressRepository.FindAsync(id);
 
-            if (entity == null)
+            if (address == null)
             {
                 return false;
             }
 
-            _addressRepository.Remove(entity);
+            _addressRepository.Remove(address);
             await _addressRepository.SaveAsync();
 
             return true;
@@ -65,9 +76,9 @@ namespace TheBakery.Services
                 return null;
             }
 
-            var entities = await _addressRepository.GetAllAsync();
+            var addresses = await _addressRepository.GetAllAsync();
 
-            return entities;
+            return addresses;
         }
 
         public async Task<Address?> GetAsync(Guid id)
@@ -77,14 +88,14 @@ namespace TheBakery.Services
                 return null;
             }
 
-            var entity = await _addressRepository.FindAsync(id);
+            var address = await _addressRepository.FindAsync(id);
 
-            if (entity == null)
+            if (address == null)
             {
                 return null;
             }
 
-            return entity;
+            return address;
         }
 
         public async Task<Address?> GetByProperties(string number, string street, string postCode, string city)
@@ -94,19 +105,36 @@ namespace TheBakery.Services
                 return null;
             }
 
-            var entity = await _addressRepository.FindAsync(number, street, postCode, city);
+            var address = await _addressRepository.FindAsync(number, street, postCode, city);
 
-            if (entity == null)
+            if (address == null)
             {
                 return null;
             }
 
-            return entity;
+            return address;
         }
 
-        public async Task<bool> UpdateAsync(Guid id, Address entity)
+        public async Task<ServiceResult> UpdateAsync(Guid id, Address address)
         {
-            _addressRepository.Update(entity);
+            var addressExists = await _addressRepository.FindAsync(
+                address.Number,
+                address.Street,
+                address.PostCode,
+                address.City);
+
+            if (addressExists == null)
+            {
+                return new ServiceResult(false, "Address not found.");
+            }
+
+            if (addressExists != null && 
+                addressExists.AddressId != address.AddressId)
+            {
+                return new ServiceResult(false, "Address with the same properties already exists.");
+            }
+
+            _addressRepository.Update(address);
 
             try
             {
@@ -116,7 +144,7 @@ namespace TheBakery.Services
             {
                 if (!(await EntityExists(id)))
                 {
-                    return false;
+                    return new ServiceResult(false, "Address not found.");
                 }
                 else
                 {
@@ -124,7 +152,7 @@ namespace TheBakery.Services
                 }
             }
 
-            return true;
+            return new ServiceResult(true, "Address updated successfully.");
         }
     }
 }

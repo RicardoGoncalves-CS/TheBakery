@@ -121,64 +121,6 @@ namespace TheBakery.Services
             }
 
             return ordersDto;
-
-            /*
-
-            foreach (var order in ordersDto)
-            {
-                var orderDetailsDto = _mapper.Map<List<GetOrderDetailsDto>>(order.OrderDetails);
-                decimal total = 0;
-
-                foreach (var orderDetails in orderDetailsDto)
-                {
-                    var product = await _productRepository.FindAsync(orderDetails.ProductId);
-
-                    if (product == null)
-                    {
-                        return null;
-                    }
-
-                    orderDetails.Price = product.UnitPrice * orderDetails.Quantity;
-                    total += product.UnitPrice * orderDetails.Quantity;
-                }
-
-                //orderDto.OrderDetails = orderDetailsDto;
-                //orderDto.TotalPrice = total;
-            }
-
-            return ordersDto;
-            
-            /*
-            if (_orderRepository.IsNull)
-            {
-                return null;
-            }
-
-            var orders = await _orderRepository.GetAllAsync();
-            var orderDetails = _mapper.Map<List<GetOrderDetailsDto>>(orders.OrderDetails);
-            var ordersDto = _mapper.Map<List<GetOrderDto>>(orders);
-
-            foreach(var orderDto in ordersDto)
-            {
-                decimal total = 0;
-
-                foreach (var details in orderDto.OrderDetails)
-                {
-                    var product = await _productRepository.FindAsync(orderDetails.ProductId);
-
-                    if (product == null)
-                    {
-                        return null;
-                    }
-
-                    orderDetails.Price = product.UnitPrice * orderDetails.Quantity;
-                    total += product.UnitPrice * orderDetails.Quantity;
-                }
-
-                orderDto.TotalPrice = total;
-            }
-
-            return ordersDto;*/
         }
 
         public async Task<GetOrderDto?> GetAsync(Guid id)
@@ -269,7 +211,7 @@ namespace TheBakery.Services
             return orderDetails;
         }
 
-        public async Task<bool> UpdateAsync(Guid id, PutOrderDto orderDto)
+        public async Task<ServiceResult> UpdateAsync(Guid id, PutOrderDto orderDto)
         {
             var order = _mapper.Map<Order>(orderDto);
 
@@ -283,7 +225,7 @@ namespace TheBakery.Services
             {
                 if (!(await EntityExists(id)))
                 {
-                    return false;
+                    return new ServiceResult(false, "");
                 }
                 else
                 {
@@ -291,7 +233,7 @@ namespace TheBakery.Services
                 }
             }
 
-            return true;
+            return new ServiceResult(true, "");
         }
     }
 }

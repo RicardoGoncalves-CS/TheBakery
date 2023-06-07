@@ -129,7 +129,7 @@ namespace TheBakery.Services
             return product;
         }
 
-        public async Task<bool> UpdateAsync(Guid id, PutOrderDetailsDto orderDetailsDto)
+        public async Task<ServiceResult> UpdateAsync(Guid id, PutOrderDetailsDto orderDetailsDto)
         {
             var orderDetails = _mapper.Map<OrderDetails>(orderDetailsDto);
             
@@ -143,7 +143,7 @@ namespace TheBakery.Services
             {
                 if (!(await EntityExists(id)))
                 {
-                    return false;
+                    return new ServiceResult(false, "");
                 }
                 else
                 {
@@ -151,7 +151,7 @@ namespace TheBakery.Services
                 }
             }
 
-            return true;
+            return new ServiceResult(true, "");
         }
     }
 }
