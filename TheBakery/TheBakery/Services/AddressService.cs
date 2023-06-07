@@ -44,24 +44,24 @@ namespace TheBakery.Services
             return (true, address);
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<ServiceResult> DeleteAsync(Guid id)
         {
             if (_addressRepository.IsNull)
             {
-                return false;
+                return new ServiceResult(false, "Address repository is not available.");
             }
 
             var address = await _addressRepository.FindAsync(id);
 
             if (address == null)
             {
-                return false;
+                return new ServiceResult(false, "Address not found.");
             }
 
             _addressRepository.Remove(address);
             await _addressRepository.SaveAsync();
 
-            return true;
+            return new ServiceResult(true, "Address deleted successfully.");
         }
 
         public async Task<bool> EntityExists(Guid id)
@@ -144,7 +144,7 @@ namespace TheBakery.Services
             {
                 if (!(await EntityExists(id)))
                 {
-                    return new ServiceResult(false, "Address not found.");
+                    return new ServiceResult(false, "Address update failed due to a concurrency conflict.");
                 }
                 else
                 {

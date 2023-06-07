@@ -77,7 +77,6 @@ namespace TheBakery.Controllers
         }
 
         // PUT: api/Orders/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutOrder(Guid id, PutOrderDto order)
         {
@@ -90,13 +89,13 @@ namespace TheBakery.Controllers
 
             if (!result.IsSuccessful)
             {
-                return NotFound();
+                return Problem(result.Message);
             }
-            return NoContent();
+
+            return Ok(result.Message);
         }
 
         // POST: api/Orders
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Order>> PostOrder(PostOrderDto order)
         {
@@ -114,19 +113,14 @@ namespace TheBakery.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrder(Guid id)
         {
-            var deleted = await _orderService.DeleteAsync(id);
+            var result = await _orderService.DeleteAsync(id);
 
-            if (deleted == false)
+            if (!result.IsSuccessful)
             {
-                return NotFound();
+                return Problem(result.Message);
             }
 
-            return NoContent();
-        }
-
-        private bool OrderExists(Guid id)
-        {
-            return (_context.Order?.Any(e => e.OrderId == id)).GetValueOrDefault();
+            return Ok(result.Message);
         }
     }
 }

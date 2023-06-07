@@ -53,24 +53,24 @@ namespace TheBakery.Services
             return (true, order);
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<ServiceResult> DeleteAsync(Guid id)
         {
             if (_orderRepository.IsNull)
             {
-                return false;
+                return new ServiceResult(false, "Order repository is not available.");
             }
 
             var order = await _orderRepository.FindAsync(id);
 
             if (order == null)
             {
-                return false;
+                return new ServiceResult(false, "Order not found.");
             }
 
             _orderRepository.Remove(order);
             await _orderRepository.SaveAsync();
 
-            return true;
+            return new ServiceResult(true, "Order deleted successfully.");
         }
 
         public async Task<bool> EntityExists(Guid id)
@@ -225,7 +225,7 @@ namespace TheBakery.Services
             {
                 if (!(await EntityExists(id)))
                 {
-                    return new ServiceResult(false, "");
+                    return new ServiceResult(false, "Order update failed due to a concurrency conflict.");
                 }
                 else
                 {
@@ -233,7 +233,7 @@ namespace TheBakery.Services
                 }
             }
 
-            return new ServiceResult(true, "");
+            return new ServiceResult(true, "Order updated successfully.");
         }
     }
 }
