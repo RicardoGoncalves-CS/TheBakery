@@ -51,24 +51,24 @@ namespace TheBakery.Services
             return (true, customer);
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<ServiceResult> DeleteAsync(Guid id)
         {
             if (_customerRepository.IsNull)
             {
-                return false;
+                return new ServiceResult(false, "Customer repository is not available.");
             }
 
-            var entity = await _customerRepository.FindAsync(id);
+            var cutomer = await _customerRepository.FindAsync(id);
 
-            if (entity == null)
+            if (cutomer == null)
             {
-                return false;
+                return new ServiceResult(false, "Customer not found.");
             }
 
-            _customerRepository.Remove(entity);
+            _customerRepository.Remove(cutomer);
             await _customerRepository.SaveAsync();
 
-            return true;
+            return new ServiceResult(true, "Customer deleted successfully.");
         }
 
         public async Task<bool> EntityExists(Guid id)
@@ -111,9 +111,9 @@ namespace TheBakery.Services
                 return null;
             }
 
-            var entities = await _customerRepository.GetAllAsync();
+            var cutomers = await _customerRepository.GetAllAsync();
 
-            return _mapper.Map<List<GetCustomerDto>>(entities);
+            return _mapper.Map<List<GetCustomerDto>>(cutomers);
         }
 
         public async Task<GetCustomerDto?> GetAsync(Guid id)
@@ -123,14 +123,14 @@ namespace TheBakery.Services
                 return null;
             }
 
-            var entity = await _customerRepository.FindAsync(id);
+            var cutomer = await _customerRepository.FindAsync(id);
 
-            if (entity == null)
+            if (cutomer == null)
             {
                 return null;
             }
 
-            return _mapper.Map<GetCustomerDto>(entity);
+            return _mapper.Map<GetCustomerDto>(cutomer);
         }
 
         public async Task<ServiceResult> UpdateAsync(Guid id, PutCustomerDto entity)
@@ -156,7 +156,7 @@ namespace TheBakery.Services
             {
                 if (!(await EntityExists(id)))
                 {
-                    return new ServiceResult(false, "");
+                    return new ServiceResult(false, "Customer update failed due to a concurrency conflict.");
                 }
                 else
                 {
@@ -164,7 +164,7 @@ namespace TheBakery.Services
                 }
             }
 
-            return new ServiceResult(true, "");
+            return new ServiceResult(true, "Customer updated successfully.");
         }
     }
 }

@@ -39,7 +39,6 @@ namespace TheBakery.Controllers
         }
 
         // PUT: api/Addresses/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAddress(Guid id, Address address)
         {
@@ -59,7 +58,6 @@ namespace TheBakery.Controllers
         }
 
         // POST: api/Addresses
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Address>> PostAddress(PostAddressDto address)
         {
@@ -77,14 +75,14 @@ namespace TheBakery.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAddress(Guid id)
         {
-            var deleted = await _addressService.DeleteAsync(id);
+            var result = await _addressService.DeleteAsync(id);
 
-            if (deleted == false)
+            if (!result.IsSuccessful)
             {
-                return NotFound();
+                return Problem(result.Message);
             }
 
-            return NoContent();
+            return Ok(result.Message);
         }
     }
 }

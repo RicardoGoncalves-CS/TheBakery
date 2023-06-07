@@ -61,7 +61,6 @@ namespace TheBakery.Controllers
         }
 
         // PUT: api/Customers/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCustomer(Guid id, PutCustomerDto customer)
         {
@@ -74,13 +73,13 @@ namespace TheBakery.Controllers
 
             if (!result.IsSuccessful)
             {
-                return NotFound();
+                return Problem(result.Message);
             }
-            return NoContent();
+
+            return Ok(result.Message);
         }
 
         // POST: api/Customers
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Customer>> PostCustomer(PostCustomerDto customer)
         {
@@ -98,14 +97,14 @@ namespace TheBakery.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomer(Guid id)
         {
-            var deleted = await _customerService.DeleteAsync(id);
+            var result = await _customerService.DeleteAsync(id);
 
-            if (deleted == false)
+            if (!result.IsSuccessful)
             {
-                return NotFound();
+                return Problem(result.Message);
             }
 
-            return NoContent();
+            return Ok(result.Message);
         }
     }
 }
