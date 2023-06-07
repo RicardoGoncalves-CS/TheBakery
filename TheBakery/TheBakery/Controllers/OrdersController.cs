@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using TheBakery.Data;
 using TheBakery.Models;
 using TheBakery.Models.DTOs.Customer;
+using TheBakery.Models.DTOs.OrderDetailsDtos;
 using TheBakery.Models.DTOs.OrderDtos;
 using TheBakery.Services;
 
@@ -59,6 +60,20 @@ namespace TheBakery.Controllers
             }
 
             return customer;
+        }
+
+        // GET: api/Orders/5/OrderDetails
+        [HttpGet("{id}/OrderDetails")]
+        public async Task<ActionResult<List<GetOrderDetailsDto>>> GetOrderDetails(Guid id)
+        {
+            var orderDetails = await _orderService.GetOrderDetailsByOrderId(id);
+
+            if (orderDetails == null)
+            {
+                return NotFound();
+            }
+
+            return orderDetails;
         }
 
         // PUT: api/Orders/5
