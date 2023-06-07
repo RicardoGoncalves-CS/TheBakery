@@ -1,14 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TheBakery.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using TheBakery.Models;
-using TheBakery.Models.DTOs;
 using TheBakery.Models.DTOs.Customer;
 using TheBakery.Services;
 

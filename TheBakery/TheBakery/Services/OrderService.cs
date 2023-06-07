@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using System.Xml.Schema;
 using TheBakery.Data.Repositories;
 using TheBakery.Models;
 using TheBakery.Models.DTOs.Customer;
@@ -14,20 +13,17 @@ namespace TheBakery.Services
         private readonly IOrderRepository _orderRepository;
         private readonly IProductRepository _productRepository;
         private readonly ICustomerRepository _customerRepository;
-        private readonly IOrderDetailsRepository _orderDetailsRepository;
         private readonly IMapper _mapper;
 
         public OrderService(
             IOrderRepository orderRepository,
             IProductRepository productRepository,
             ICustomerRepository customerRepository,
-            IOrderDetailsRepository orderDetailsRepository,
             IMapper mapper)
         {
             _orderRepository = orderRepository;
             _productRepository = productRepository;
             _customerRepository = customerRepository;
-            _orderDetailsRepository = orderDetailsRepository;
             _mapper = mapper;
         }
 
@@ -44,6 +40,23 @@ namespace TheBakery.Services
             {
                 return (false, null);
             }
+
+            var orderDetails = new List<PostOrderDetailsDto>();
+
+            foreach (var details in orderDto.OrderDetails)
+            {
+                var existingOrderDetails = orderDetails.FirstOrDefault(od => od.ProductId == details.ProductId);
+                if (existingOrderDetails != null)
+                {
+                    existingOrderDetails.Quantity += details.Quantity;
+                }
+                else
+                {
+                    orderDetails.Add(details);
+                }
+            }
+
+            orderDto.OrderDetails = orderDetails;
 
             var order = _mapper.Map<Order>(orderDto);
 
@@ -213,6 +226,23 @@ namespace TheBakery.Services
 
         public async Task<ServiceResult> UpdateAsync(Guid id, PutOrderDto orderDto)
         {
+            var orderDetails = new List<PostOrderDetailsDto>();
+
+            foreach (var details in orderDto.OrderDetails)
+            {
+                var existingOrderDetails = orderDetails.FirstOrDefault(od => od.ProductId == details.ProductId);
+                if (existingOrderDetails != null)
+                {
+                    existingOrderDetails.Quantity += details.Quantity;
+                }
+                else
+                {
+                    orderDetails.Add(details);
+                }
+            }
+
+            orderDto.OrderDetails = orderDetails;
+
             var order = _mapper.Map<Order>(orderDto);
 
             _orderRepository.Update(order);
