@@ -10,12 +10,8 @@ namespace TheBakery.Models
 {
     public class MappingProfile : Profile
     {
-        //private readonly IProductRepository _productRepository;
-
-        public MappingProfile(/*IProductRepository productRepository*/)
+        public MappingProfile()
         {
-            //_productRepository = productRepository;
-
             // Address mapping
             CreateMap<PostAddressDto, Address>();
 
@@ -31,9 +27,9 @@ namespace TheBakery.Models
             CreateMap<PostOrderDetailsDto, OrderDetails>();
             CreateMap<PutOrderDetailsDto, OrderDetails>();
             CreateMap<OrderDetails, GetOrderDetailsDto>();
-            CreateMap<GetOrderDetailsDto, GetLimitedOrderDetailsDto>();
             CreateMap<OrderDetails, GetLimitedOrderDetailsDto>();
-            CreateMap<GetLimitedOrderDetailsDto, GetOrderDetailsDto>();
+            CreateMap<GetOrderDetailsDto, GetLimitedOrderDetailsDto>();
+            //CreateMap<GetLimitedOrderDetailsDto, GetOrderDetailsDto>();
 
             // Order mapping
             CreateMap<PostOrderDto, Order>();
