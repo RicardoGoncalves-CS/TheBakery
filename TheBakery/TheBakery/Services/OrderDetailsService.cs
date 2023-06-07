@@ -105,7 +105,7 @@ namespace TheBakery.Services
             return orderDetailsDto;
         }
 
-        public async Task<Product?> GetProductByOrderDetailsId(Guid id)
+        public async Task<Product> GetProductByOrderDetailsId(Guid id)
         {
             if (_orderDetailsRepository.IsNull)
             {

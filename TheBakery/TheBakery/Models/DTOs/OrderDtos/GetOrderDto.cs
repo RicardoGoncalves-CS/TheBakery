@@ -7,7 +7,7 @@ namespace TheBakery.Models.DTOs.OrderDtos
         public Guid OrderId { get; set; }
         public DateTime OrderDate { get; set; }
         public Guid CustomerId { get; set; }
-        public IEnumerable<GetOrderDetailsDto> OrderDetails { get; set; }
+        public IEnumerable<GetLimitedOrderDetailsDto> OrderDetails { get; set; }
         public decimal TotalPrice { get; set; }
     }
 }

@@ -31,6 +31,9 @@ namespace TheBakery.Models
             CreateMap<PostOrderDetailsDto, OrderDetails>();
             CreateMap<PutOrderDetailsDto, OrderDetails>();
             CreateMap<OrderDetails, GetOrderDetailsDto>();
+            CreateMap<GetOrderDetailsDto, GetLimitedOrderDetailsDto>();
+            CreateMap<OrderDetails, GetLimitedOrderDetailsDto>();
+            CreateMap<GetLimitedOrderDetailsDto, GetOrderDetailsDto>();
 
             // Order mapping
             CreateMap<PostOrderDto, Order>();
