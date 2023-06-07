@@ -70,9 +70,9 @@ namespace TheBakery.Controllers
                 return BadRequest();
             }
 
-            var updatedSuccessfully = await _customerService.UpdateAsync(id, customer);
+            var result = await _customerService.UpdateAsync(id, customer);
 
-            if (!updatedSuccessfully)
+            if (!result.IsSuccessful)
             {
                 return NotFound();
             }

@@ -48,13 +48,14 @@ namespace TheBakery.Controllers
                 return BadRequest();
             }
 
-            var updatedSuccessfully = await _addressService.UpdateAsync(id, address);
+            var result = await _addressService.UpdateAsync(id, address);
 
-            if (!updatedSuccessfully)
+            if (!result.IsSuccessful)
             {
-                return NotFound();
+                return Problem(result.Message);
             }
-            return NoContent();
+
+            return Ok(result.Message);
         }
 
         // POST: api/Addresses
@@ -66,7 +67,7 @@ namespace TheBakery.Controllers
 
             if (!created.Item1)
             {
-                return Problem("There was a problem creating the Address.");
+                return Problem("There was a problem creating the Address. Verify if Address already exists in the database!");
             }
 
             return CreatedAtAction("GetAddress", new { id = created.Item2?.AddressId }, created.Item2);

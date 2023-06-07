@@ -55,9 +55,9 @@ namespace TheBakery.Controllers
                 return BadRequest();
             }
 
-            var updatedSuccessfully = await _productService.UpdateAsync(id, product);
+            var result = await _productService.UpdateAsync(id, product);
 
-            if (!updatedSuccessfully)
+            if (!result.IsSuccessful)
             {
                 return NotFound();
             }
